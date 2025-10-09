@@ -1,5 +1,11 @@
 # VibeVM 🚀
 
+<div align="center">
+
+![VibeVM](VibeVM.png)
+
+</div>
+
 > Your complete AI agent development environment running in a Trusted Execution Environment (TEE). Browser automation, code execution, and cryptographic capabilities - all in one secure sandbox.
 
 ## Why VibeVM?
