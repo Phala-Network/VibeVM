@@ -116,10 +116,13 @@ services:
 
         # Add Flox activation and environment variables to bashrc
         if [ -f /home/$$USER/.bashrc ]; then
-          if ! grep -q "flox activate" /home/$$USER/.bashrc; then
-            echo "" >> /home/$$USER/.bashrc
-            echo "# Activate Flox environment" >> /home/$$USER/.bashrc
-            echo 'eval "$$(flox activate -d /home/$$USER/.flox-env)"' >> /home/$$USER/.bashrc
+          # Only add Flox activation if Flox is installed and enabled
+          if [ "$${INSTALL_FLOX:-true}" = "true" ] && command -v flox >/dev/null 2>&1; then
+            if ! grep -q "flox activate" /home/$$USER/.bashrc; then
+              echo "" >> /home/$$USER/.bashrc
+              echo "# Activate Flox environment" >> /home/$$USER/.bashrc
+              echo 'eval "$$(flox activate -d /home/$$USER/.flox-env)"' >> /home/$$USER/.bashrc
+            fi
           fi
           # Add GH_TOKEN if provided
           if [ -n "$${GH_TOKEN}" ]; then
@@ -185,7 +188,7 @@ services:
         chown -R $$USER:$$USER /home/$$USER
 
         # Set up Nix permissions for Flox (Flox uses Nix under the hood)
-        if [ -d /nix ]; then
+        if [ "$${INSTALL_FLOX:-true}" = "true" ] && [ -d /nix ]; then
           echo "Setting up Nix permissions for Flox..."
           # Create necessary Nix directories
           mkdir -p /nix/var/log/nix/drvs

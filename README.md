@@ -458,7 +458,7 @@ Your VibeVM comes with a complete development environment managed by **Flox** or
 
 ### Installing Additional Tools
 
-Add more packages via Flox or `apt`:
+**With Flox (if `INSTALL_FLOX=true`):**
 
 ```bash
 # Activate Flox (already done automatically)
@@ -469,8 +469,24 @@ flox install package-name
 
 # Search for packages
 flox search package-name
-
 ```
+
+**Without Flox (if `INSTALL_FLOX=false`):**
+
+If you disabled Flox installation, use `apt` to install packages:
+
+```bash
+# Update package list
+sudo apt update
+
+# Install packages
+sudo apt install package-name
+
+# Search for packages
+apt search package-name
+```
+
+> **Note:** The `gem` user has passwordless sudo access for system-level package installation.
 
 ---
 
