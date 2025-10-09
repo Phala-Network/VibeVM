@@ -14,7 +14,7 @@ Stop juggling multiple tools and environments. VibeVM gives you everything you n
 
 - **🌐 Browser Control** - Full Chrome browser with VNC, Playwright, and automation tools
 - **💻 VSCode Server** - Complete IDE in your browser, no local setup needed
-- **📦 Pre-installed Tools** - Python 3.13, Node.js 22, git, gh CLI, and 20+ developer tools via Flox
+- **📦 Pre-installed Tools** - Python 3.13, Node.js 22, git, gh CLI, and 20+ developer tools via apt
 - **🔒 TEE Security** - Cryptographic key derivation and remote attestation via Dstack
 - **📁 Unified Workspace** - All tools share the same filesystem - no more file shuffling
 - **📱 Mobile Access** - Code on the go with Happy CLI mobile connection
@@ -28,7 +28,6 @@ The complete deployment configuration for VibeVM. Copy this entire file and past
 ![alt text](image.png)
 
 **Features:**
-- ✅ Auto-installation of Flox package manager with 20+ dev tools (configurable)
 - ✅ Happy CLI installation for mobile remote connection (configurable)
 - ✅ Claude Code AI assistant installation (configurable)
 - ✅ GitHub repository auto-cloning on startup
@@ -75,7 +74,6 @@ WORKSPACE=/workspace
 ```bash
 /home/gem/                    # Your home directory (persisted)
 /home/gem/your-repo-name/     # Auto-cloned GitHub repo
-/home/gem/.flox-env/          # Flox environment with all tools
 /var/run/dstack.sock          # TEE API socket
 /var/run/docker.sock          # Docker daemon socket
 /workspace/                   # Persistent volume
@@ -92,14 +90,8 @@ WORKSPACE=/workspace
 
 ### Essential Commands
 ```bash
-# Activate Flox environment (auto-activated)
-flox activate -d /home/gem/.flox-env
-
 # GitHub authentication
 gh auth login
-
-# Install additional tools
-flox install package-name
 
 # Access TEE info
 curl --unix-socket /var/run/dstack.sock http://localhost/info
@@ -148,8 +140,6 @@ PHALA_API_KEY=your_phala_api_key
 #### Optional Configuration
 
 ```bash
-# Control which tools to install (defaults to "true")
-INSTALL_FLOX=true        # Flox package manager with dev tools
 INSTALL_HAPPY=true       # Happy CLI for mobile remote access
 INSTALL_CLAUDE=true      # Claude Code AI assistant
 
@@ -429,7 +419,7 @@ volumes:
 
 The full `docker-compose.yaml` includes:
 - ✅ Automatic user creation and permissions
-- ✅ Flox package manager installation (Python 3.13, Node.js 22, git, gh CLI, and 20+ tools)
+- ✅ apt package manager installation (Python 3.13, Node.js 22, git, gh CLI, and 20+ tools)
 - ✅ Happy CLI for mobile remote connection (optional via `INSTALL_HAPPY`)
 - ✅ Claude Code AI assistant (optional via `INSTALL_CLAUDE`)
 - ✅ GitHub repository auto-cloning
@@ -438,13 +428,13 @@ The full `docker-compose.yaml` includes:
 
 **Just copy and paste - no modifications needed!** The secrets you set in the dashboard will be automatically injected.
 
-**Customization:** Set `INSTALL_FLOX`, `INSTALL_HAPPY`, or `INSTALL_CLAUDE` to `false` in environment variables to skip installation and reduce startup time.
+**Customization:** Set `INSTALL_HAPPY`, or `INSTALL_CLAUDE` to `false` in environment variables to skip installation and reduce startup time.
 
 ---
 
-## Pre-installed Tools via Flox
+## Pre-installed Tools via apt
 
-Your VibeVM comes with a complete development environment managed by **Flox** or `apt` (automatically activated on login):
+Your VibeVM comes with a complete development environment managed by `apt`:
 
 | Category | Tools |
 |----------|-------|
@@ -458,28 +448,9 @@ Your VibeVM comes with a complete development environment managed by **Flox** or
 | **Media** | imagemagick, yt-dlp |
 | **Remote Access** | happy-coder (mobile connection), Claude Code (AI assistant) |
 
-**Flox Environment:** All tools are available immediately upon login. The Flox environment is automatically activated in your shell.
-
 **Note:** Claude Code and Happy CLI are installed via npm if `INSTALL_CLAUDE` and `INSTALL_HAPPY` are set to `true` (default).
 
 ### Installing Additional Tools
-
-**With Flox (if `INSTALL_FLOX=true`):**
-
-```bash
-# Activate Flox (already done automatically)
-flox activate
-
-# Install additional packages
-flox install package-name
-
-# Search for packages
-flox search package-name
-```
-
-**Without Flox (if `INSTALL_FLOX=false`):**
-
-If you disabled Flox installation, use `apt` to install packages:
 
 ```bash
 # Update package list
@@ -702,11 +673,6 @@ go get github.com/Dstack-TEE/dstack/sdk/go/dstack
 - Socket is mounted at `/var/run/dstack.sock`
 - Use `ls -la /var/run/` to verify socket exists
 - Example: `curl --unix-socket /var/run/dstack.sock http://localhost/info`
-
-### Flox environment not activated?
-- Run: `flox activate -d /home/gem/.flox-env`
-- Environment should auto-activate on new terminal sessions
-- Check `/home/gem/.bashrc` for the activation command
 
 ### Where is my workspace?
 - **Home directory:** `/home/gem/`

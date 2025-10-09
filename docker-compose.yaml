@@ -14,7 +14,6 @@ services:
       - GITHUB_REPO=${GITHUB_REPO}
       - GH_TOKEN=${GH_TOKEN}
       # Optional: Install additional tools during startup (set to "true" or "false")
-      - INSTALL_FLOX=${INSTALL_FLOX:-true}
       - INSTALL_HAPPY=${INSTALL_HAPPY:-true}
       - INSTALL_CLAUDE=${INSTALL_CLAUDE:-true}
       # Standard environment variables for the service
@@ -85,23 +84,6 @@ services:
           echo "Warning: Cannot modify sudoers (running in restricted environment)"
         fi
 
-        # Install Flox (if enabled)
-        if [ "$${INSTALL_FLOX:-true}" = "true" ]; then
-          FLOX_VERSION="1.7.4"
-          FLOX_DEB="/tmp/flox-$${FLOX_VERSION}.x86_64-linux.deb"
-          if ! command -v flox >/dev/null 2>&1; then
-            echo "Installing Flox $${FLOX_VERSION}..."
-            curl -fsSL "https://downloads.flox.dev/by-env/stable/deb/flox-$${FLOX_VERSION}.x86_64-linux.deb" -o "$${FLOX_DEB}"
-            dpkg -i "$${FLOX_DEB}"
-            rm -f "$${FLOX_DEB}"
-            echo "Flox installed successfully"
-          else
-            echo "Flox is already installed"
-          fi
-        else
-          echo "Skipping Flox installation (INSTALL_FLOX=false)"
-        fi
-
         # 确保必要的目录存在
         mkdir -p /var/run/tinyproxy
         chmod 755 /var/run/tinyproxy
@@ -116,14 +98,6 @@ services:
 
         # Add Flox activation and environment variables to bashrc
         if [ -f /home/$$USER/.bashrc ]; then
-          # Only add Flox activation if Flox is installed and enabled
-          if [ "$${INSTALL_FLOX:-true}" = "true" ] && command -v flox >/dev/null 2>&1; then
-            if ! grep -q "flox activate" /home/$$USER/.bashrc; then
-              echo "" >> /home/$$USER/.bashrc
-              echo "# Activate Flox environment" >> /home/$$USER/.bashrc
-              echo 'eval "$$(flox activate -d /home/$$USER/.flox-env)"' >> /home/$$USER/.bashrc
-            fi
-          fi
           # Add GH_TOKEN if provided
           if [ -n "$${GH_TOKEN}" ]; then
             if ! grep -q "export GH_TOKEN" /home/$$USER/.bashrc; then
@@ -186,43 +160,6 @@ services:
 
         # in the end ensure the home directory is owned by the user
         chown -R $$USER:$$USER /home/$$USER
-
-        # Set up Nix permissions for Flox (Flox uses Nix under the hood)
-        if [ "$${INSTALL_FLOX:-true}" = "true" ] && [ -d /nix ]; then
-          echo "Setting up Nix permissions for Flox..."
-          # Create necessary Nix directories
-          mkdir -p /nix/var/log/nix/drvs
-          mkdir -p /nix/var/nix/profiles
-          mkdir -p /nix/var/nix/gcroots
-          # Fix Nix database permissions
-          chown -R $$USER:$$USER /nix/var 2>/dev/null || true
-          chown -R $$USER:$$USER /nix/store 2>/dev/null || true
-          chmod -R u+w /nix/var 2>/dev/null || true
-        fi
-
-        # Initialize and configure Flox environment as the user (after home directory is properly owned)
-        if [ "$${INSTALL_FLOX:-true}" = "true" ]; then
-          su - $$USER -c '
-            FLOX_ENV_DIR="/home/'"$$USER"'/.flox-env"
-
-            # Initialize flox environment if it doesn'\''t exist
-            if [ ! -d "$$FLOX_ENV_DIR/.flox" ]; then
-              echo "Initializing Flox environment..."
-              mkdir -p "$$FLOX_ENV_DIR"
-              cd "$$FLOX_ENV_DIR"
-              flox init
-
-              # Install base packages
-              echo "Installing base packages via Flox..."
-              flox install python3 nodejs git gh vim nano wget curl gnutar gzip unzip tree rsync \
-                gnugrep gnused gawk jq ripgrep htop procps imagemagick yt-dlp netcat-gnu nmap
-
-              echo "Flox environment initialized with base packages"
-            else
-              echo "Flox environment already exists"
-            fi
-          '
-        fi
 
         # Install Happy CLI (if enabled and Node.js is available)
         if [ "$${INSTALL_HAPPY:-true}" = "true" ]; then
