@@ -10,6 +10,7 @@ echo "🚀 VibeVM Setup Starting..."
 echo "=========================================="
 
 VIBEVM_DIR="/home/gem/VibeVM"
+GITHUB_COMMIT="${GITHUB_COMMIT:-}"
 
 # Check if we're in the VibeVM directory
 if [ ! -d "$VIBEVM_DIR" ]; then
@@ -19,6 +20,20 @@ if [ ! -d "$VIBEVM_DIR" ]; then
 fi
 
 cd "$VIBEVM_DIR"
+
+# Checkout specific commit if specified
+if [ -n "$GITHUB_COMMIT" ]; then
+    echo "📌 Checking out specific commit: $GITHUB_COMMIT"
+    git fetch origin
+    if git checkout "$GITHUB_COMMIT"; then
+        echo "✅ Successfully checked out commit $GITHUB_COMMIT"
+    else
+        echo "❌ ERROR: Failed to checkout commit $GITHUB_COMMIT"
+        echo "Continuing with current HEAD..."
+    fi
+else
+    echo "📌 Using current HEAD (no specific commit specified)"
+fi
 
 echo "📦 Installing system dependencies..."
 sudo apt-get update

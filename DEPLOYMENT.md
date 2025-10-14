@@ -12,6 +12,10 @@ Create or update your `.env` file with your repository:
 # Required: Your VibeVM repo (use the official repo or your fork)
 GITHUB_REPO=Phala-Network/VibeVM
 
+# Optional: Specific commit, branch, or tag to checkout
+# Leave empty to use default branch HEAD
+GITHUB_COMMIT=abc123def456
+
 # Optional: GitHub token for private forks
 GH_TOKEN=ghp_your_token_here
 
@@ -59,21 +63,20 @@ curl -X POST https://cloud-api.phala.network/v1/cvms \
 EOF
 ```
 
-### Step 3: Run Setup Script
+### Step 3: Automatic Setup
 
-Once the CVM is running:
+The setup script runs automatically when the container starts! The docker-compose.yaml includes a custom command that:
 
-**Option 1: Automatic Setup (via environment variable)**
+1. Starts the base AIO Sandbox
+2. Waits for the VibeVM repository to be cloned
+3. Automatically runs `setup-vibevm.sh`
+4. Sets up all VibeVM services
 
-Add this to your `docker-compose.yaml` environment:
+You don't need to do anything - just deploy and wait for the setup to complete (usually 2-3 minutes).
 
-```yaml
-environment:
-  - GITHUB_REPO=Phala-Network/VibeVM
-  - VIBEVM_AUTO_SETUP=true  # Add this to auto-run setup
-```
+**Manual Setup (for troubleshooting)**
 
-**Option 2: Manual Setup (recommended for first time)**
+If you need to run setup manually:
 
 ```bash
 # SSH or exec into your container
@@ -159,6 +162,37 @@ git pull origin main
 
 Your custom setup will be automatically pulled and installed.
 
+### Deploy Specific Versions
+
+Use the `GITHUB_COMMIT` environment variable to deploy a specific version:
+
+```bash
+# Deploy a specific commit
+GITHUB_COMMIT=abc123def456
+
+# Deploy a specific tag/release
+GITHUB_COMMIT=v1.0.0
+
+# Deploy a specific branch
+GITHUB_COMMIT=feature-branch
+
+# Deploy latest from main (default)
+# Leave GITHUB_COMMIT empty or unset
+```
+
+**Use cases:**
+- **Production stability**: Pin to a tested commit hash
+- **Rollback**: Deploy a previous version quickly
+- **Testing**: Deploy a feature branch for testing
+- **Release management**: Use semantic versioning tags (v1.0.0, v1.1.0)
+
+**Example deployment with specific version:**
+```bash
+# In Phala Cloud dashboard, set:
+GITHUB_REPO=your-username/VibeVM
+GITHUB_COMMIT=v1.0.0
+```
+
 ---
 
 ## Troubleshooting
@@ -241,6 +275,7 @@ No Docker rebuild needed! 🎉
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `GITHUB_REPO` | `Phala-Network/VibeVM` | Repository to clone |
+| `GITHUB_COMMIT` | - | Specific commit/branch/tag to checkout |
 | `GH_TOKEN` | - | GitHub token for private repos |
 | `VIBEVM_USERNAME` | `admin` | Login username |
 | `VIBEVM_PASSWORD` | `admin` | Login password |
