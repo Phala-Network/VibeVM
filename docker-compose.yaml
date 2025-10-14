@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   vibevm:
-    image: hashwarlock/vibevm:v1.0.0a
+    image: ghcr.io/agent-infra/sandbox:1.0.0.128
     security_opt:
       - seccomp:unconfined
     extra_hosts:
@@ -26,8 +26,8 @@ services:
       - "8000:8000"  # Application port
       - "8080:8080"  # AIO Sandbox Public Port
     environment:
-      # Git repository configuration
-      - GITHUB_REPO=${GITHUB_REPO}
+      # Git repository configuration (clone VibeVM repo to run setup)
+      - GITHUB_REPO=${GITHUB_REPO:-Phala-Network/VibeVM}
       - GH_TOKEN=${GH_TOKEN}
       # Optional tooling installation
       - INSTALL_HAPPY=${INSTALL_HAPPY:-true}
