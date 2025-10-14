@@ -65,7 +65,7 @@ EOF
 
 ### Step 3: Automatic Setup
 
-The setup script runs automatically when the container starts! The docker-compose.yaml includes a custom command that:
+The setup script runs automatically when the container starts! The docker-compose.yaml includes a custom entrypoint wrapper that:
 
 1. Starts the base AIO Sandbox
 2. Waits for the VibeVM repository to be cloned
@@ -74,9 +74,20 @@ The setup script runs automatically when the container starts! The docker-compos
 
 You don't need to do anything - just deploy and wait for the setup to complete (usually 2-3 minutes).
 
+**Monitor Setup Progress**
+
+Watch the container logs to see setup progress:
+
+```bash
+# View live logs
+docker logs -f vibevm
+
+# Or in Phala Cloud dashboard, check the Logs tab
+```
+
 **Manual Setup (for troubleshooting)**
 
-If you need to run setup manually:
+If automatic setup fails or you need to run it manually:
 
 ```bash
 # SSH or exec into your container
@@ -137,13 +148,51 @@ AIO Sandbox Base Image
 
 ## Updating VibeVM
 
-To update to the latest version:
+### Option 1: Auto-Update on Restart (Recommended)
+
+Set `VIBEVM_AUTO_UPDATE=true` in your environment variables, then restart the container:
+
+```bash
+# In Phala Cloud dashboard or docker-compose.yaml, set:
+VIBEVM_AUTO_UPDATE=true
+
+# Then restart the container
+docker restart vibevm
+
+# Or in Phala Cloud, use the Restart button in dashboard
+```
+
+The container will automatically:
+1. Pull the latest changes from GitHub
+2. Checkout the specified commit (if `GITHUB_COMMIT` is set)
+3. Re-run `setup-vibevm.sh` to apply updates
+
+**Use cases:**
+- **Continuous updates**: Keep `VIBEVM_AUTO_UPDATE=true` for always-latest deployments
+- **One-time update**: Set to `true`, restart, then set back to `false` for stability
+
+### Option 2: Manual Update
 
 ```bash
 # Inside your container
 cd /home/gem/VibeVM
 git pull origin main
 ./setup-vibevm.sh
+```
+
+### Option 3: Deploy Specific Version
+
+Change `GITHUB_COMMIT` to target a specific version and restart:
+
+```bash
+# Update to specific commit
+GITHUB_COMMIT=abc123def456
+
+# Or update to tagged release
+GITHUB_COMMIT=v1.1.0
+
+# Restart container to apply
+docker restart vibevm
 ```
 
 ---
@@ -276,6 +325,7 @@ No Docker rebuild needed! 🎉
 |----------|---------|-------------|
 | `GITHUB_REPO` | `Phala-Network/VibeVM` | Repository to clone |
 | `GITHUB_COMMIT` | - | Specific commit/branch/tag to checkout |
+| `VIBEVM_AUTO_UPDATE` | `false` | Pull latest changes on container restart |
 | `GH_TOKEN` | - | GitHub token for private repos |
 | `VIBEVM_USERNAME` | `admin` | Login username |
 | `VIBEVM_PASSWORD` | `admin` | Login password |

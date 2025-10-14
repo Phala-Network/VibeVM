@@ -7,51 +7,67 @@ services:
       - seccomp:unconfined
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    entrypoint: ["/bin/bash", "-c"]
     command: >
-      bash -c '
-      echo "🚀 Starting AIO Sandbox with VibeVM auto-setup...";
-      /usr/local/bin/entrypoint.sh &
-      ENTRYPOINT_PID=$$!;
+      "
+      # VibeVM Auto-Setup Wrapper
+      echo '🚀 Starting VibeVM with AIO Sandbox base...';
 
-      echo "⏳ Waiting for supervisord to be ready...";
+      # Start base entrypoint in background
+      /opt/gem/run.sh &
+      BASE_PID=\$!;
+
+      # Wait for supervisord
+      echo '⏳ Waiting for supervisord...';
+      sleep 10;
       WAIT_COUNT=0;
-      while ! supervisorctl status >/dev/null 2>&1 && [ $$WAIT_COUNT -lt 30 ]; do
+      while ! supervisorctl status >/dev/null 2>&1 && [ \$WAIT_COUNT -lt 30 ]; do
         sleep 2;
-        WAIT_COUNT=$$((WAIT_COUNT + 1));
+        WAIT_COUNT=\$((WAIT_COUNT + 1));
       done;
 
-      if ! supervisorctl status >/dev/null 2>&1; then
-        echo "⚠️  WARNING: Supervisord not ready. VibeVM setup may fail.";
-      else
-        echo "✅ Supervisord is ready";
-      fi;
+      # Wait for repo clone if GITHUB_REPO is set
+      if [ -n \"\$GITHUB_REPO\" ]; then
+        echo '⏳ Waiting for repository clone...';
+        WAIT_COUNT=0;
+        while [ ! -d /home/gem/VibeVM ] && [ \$WAIT_COUNT -lt 60 ]; do
+          sleep 2;
+          WAIT_COUNT=\$((WAIT_COUNT + 1));
+        done;
 
-      echo "⏳ Waiting for VibeVM repository to be cloned...";
-      WAIT_COUNT=0;
-      while [ ! -d /home/gem/VibeVM ] && [ $$WAIT_COUNT -lt 60 ]; do
-        sleep 2;
-        WAIT_COUNT=$$((WAIT_COUNT + 1));
-      done;
+        if [ -d /home/gem/VibeVM ]; then
+          echo '✅ Repository found';
+          cd /home/gem/VibeVM;
 
-      if [ -d /home/gem/VibeVM ]; then
-        echo "✅ Repository found at /home/gem/VibeVM";
-        echo "🔧 Running VibeVM setup script...";
-        cd /home/gem/VibeVM;
-        chmod +x setup-vibevm.sh;
-        if ./setup-vibevm.sh; then
-          echo "✅ VibeVM setup complete!";
-        else
-          echo "❌ VibeVM setup failed. Check logs for details.";
+          # Check if auto-update is enabled
+          if [ \"\$VIBEVM_AUTO_UPDATE\" = \"true\" ]; then
+            echo '🔄 Auto-update enabled, pulling latest changes...';
+            sudo -u gem git fetch origin;
+            if [ -n \"\$GITHUB_COMMIT\" ]; then
+              echo \"📌 Checking out: \$GITHUB_COMMIT\";
+              sudo -u gem git checkout \"\$GITHUB_COMMIT\";
+            else
+              echo '📌 Pulling latest from default branch...';
+              sudo -u gem git pull origin \$(git symbolic-ref --short HEAD);
+            fi;
+          fi;
+
+          # Run setup script
+          if [ -f setup-vibevm.sh ]; then
+            echo '🔧 Running VibeVM setup...';
+            chmod +x setup-vibevm.sh;
+            if sudo -u gem ./setup-vibevm.sh; then
+              echo '✅ VibeVM setup complete!';
+            else
+              echo '❌ Setup failed. Check logs at /var/log/aio/';
+            fi;
+          fi;
         fi;
-      else
-        echo "⚠️  WARNING: VibeVM repository not found after 2 minutes.";
-        echo "    Make sure GITHUB_REPO is set correctly.";
-        echo "    You can manually run: cd /home/gem/VibeVM && ./setup-vibevm.sh";
       fi;
 
-      echo "🎉 Container initialization complete!";
-      wait $$ENTRYPOINT_PID;
-      '
+      echo '🎉 Initialization complete!';
+      wait \$BASE_PID;
+      "
     expose:
       - "5900"   # VNC_SERVER_PORT
       - "8081"   # AUTH_BACKEND_PORT
@@ -74,6 +90,7 @@ services:
       # Git repository configuration (clone VibeVM repo to run setup)
       - GITHUB_REPO=${GITHUB_REPO:-Phala-Network/VibeVM}
       - GITHUB_COMMIT=${GITHUB_COMMIT:-}
+      - VIBEVM_AUTO_UPDATE=${VIBEVM_AUTO_UPDATE:-false}
       - GH_TOKEN=${GH_TOKEN}
       # Optional tooling installation
       - INSTALL_HAPPY=${INSTALL_HAPPY:-true}
