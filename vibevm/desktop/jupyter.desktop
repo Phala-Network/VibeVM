@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Jupyter Lab
+Comment=Open Jupyter Lab in Browser
+Exec=/usr/local/bin/browser --new-window http://localhost:8888
+Icon=applications-science
+Terminal=false
+Categories=Development;Science;
+StartupNotify=true

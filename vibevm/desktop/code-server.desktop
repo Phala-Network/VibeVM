@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=VS Code Server
+Comment=Open VS Code in Browser
+Exec=/usr/local/bin/browser --new-window http://localhost:8200
+Icon=code
+Terminal=false
+Categories=Development;IDE;
+StartupNotify=true

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Logout
+Comment=Logout from VibeVM
+Exec=/opt/vibevm/desktop/logout.sh
+Icon=system-log-out
+Terminal=false
+Categories=System;
+NoDisplay=true

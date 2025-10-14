@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Thunar Custom Actions Configuration
+  Defines custom actions for the file manager
+-->
+<actions>
+  <!-- Open Terminal Here -->
+  <action>
+    <icon>utilities-terminal</icon>
+    <name>Open Terminal Here</name>
+    <unique-id>1234567890123456-1</unique-id>
+    <command>xfce4-terminal --working-directory=%f</command>
+    <description>Open a terminal in the selected folder</description>
+    <patterns>*</patterns>
+    <directories/>
+  </action>
+
+  <!-- Open as Root (with sudo) -->
+  <action>
+    <icon>system-run</icon>
+    <name>Edit as Root</name>
+    <unique-id>1234567890123456-2</unique-id>
+    <command>sudo mousepad %f</command>
+    <description>Edit file with root privileges</description>
+    <patterns>*</patterns>
+    <text-files/>
+  </action>
+</actions>

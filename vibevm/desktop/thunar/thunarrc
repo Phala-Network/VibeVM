@@ -1,0 +1,38 @@
+# Thunar Configuration for VibeVM
+# Sensible defaults for file manager behavior
+
+[Configuration]
+# View settings
+DefaultView=ThunarIconView
+LastView=ThunarIconView
+LastIconViewZoomLevel=THUNAR_ZOOM_LEVEL_NORMAL
+LastLocationBar=ThunarLocationButtons
+LastSidePane=ThunarShortcutsPane
+LastSeparatorPosition=170
+LastShowHidden=FALSE
+LastWindowWidth=800
+LastWindowHeight=600
+LastWindowMaximized=FALSE
+
+# Behavior settings
+MiscVolumeManagement=TRUE
+MiscCaseSensitive=FALSE
+MiscDateStyle=THUNAR_DATE_STYLE_SHORT
+MiscFoldersFirst=TRUE
+MiscHorizontalWheelNavigates=FALSE
+MiscRecursivePermissions=THUNAR_RECURSIVE_PERMISSIONS_ASK
+MiscRememberGeometry=TRUE
+MiscShowAboutTemplates=TRUE
+MiscShowThumbnails=TRUE
+MiscSingleClick=FALSE
+MiscSingleClickTimeout=500
+MiscTextBesideIcons=FALSE
+
+# File operations
+MiscConfirmMoveToTrash=TRUE
+MiscConfirmClose=TRUE
+MiscAlwaysShowTabs=FALSE
+
+# Thumbnail settings
+MiscThumbnailMode=THUNAR_THUMBNAIL_MODE_ONLY_LOCAL
+MiscMaxThumbSize=2

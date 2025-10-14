@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=VibeVM Welcome
+Comment=Display welcome message on desktop startup
+Exec=/opt/vibevm/desktop/welcome.sh
+Icon=dialog-information
+Terminal=false
+StartupNotify=false
+Hidden=false
+X-GNOME-Autostart-enabled=true
