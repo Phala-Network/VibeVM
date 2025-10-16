@@ -2,11 +2,23 @@
 
 <div align="center">
 
-![VibeVM](VibeVM.png)
+```
+██╗   ██╗██╗██████╗ ███████╗██╗   ██╗███╗   ███╗
+██║   ██║██║██╔══██╗██╔════╝██║   ██║████╗ ████║
+██║   ██║██║██████╔╝█████╗  ██║   ██║██╔████╔██║
+╚██╗ ██╔╝██║██╔══██╗██╔══╝  ╚██╗ ██╔╝██║╚██╔╝██║
+ ╚████╔╝ ██║██████╔╝███████╗ ╚████╔╝ ██║ ╚═╝ ██║
+  ╚═══╝  ╚═╝╚═════╝ ╚══════╝  ╚═══╝  ╚═╝     ╚═╝
+```
+
+**Good Vibes, Zero Trust Required**
+*Powered by Phala Cloud CVM x AIO Sandbox*
 
 </div>
 
-> Your complete AI agent development environment running in a Trusted Execution Environment (TEE). Browser automation, code execution, and cryptographic capabilities - all in one secure sandbox.
+## Overview
+
+VibeVM Desktop is a secure, lightweight desktop environment built on top of the AIO Sandbox, designed specifically for deployment in Phala Cloud Confidential Virtual Machines (CVMs). It provides an authenticated, browser-accessible desktop with modern tools and a user-friendly interface.
 
 ## Why VibeVM?
 
@@ -17,7 +29,6 @@ Stop juggling multiple tools and environments. VibeVM gives you everything you n
 - **📦 Pre-installed Tools** - Python 3.13, Node.js 22, git, gh CLI, and 20+ developer tools via apt
 - **🔒 TEE Security** - Cryptographic key derivation and remote attestation via Dstack
 - **📁 Unified Workspace** - All tools share the same filesystem - no more file shuffling
-- **📱 Mobile Access** - Code on the go with Happy CLI mobile connection
 
 **Perfect for:** Web scraping agents, blockchain applications, confidential computing, secure API integrations, and any AI agent that needs both automation and cryptographic guarantees.
 
@@ -46,9 +57,6 @@ Template for environment variables when testing locally:
 # GitHub Integration
 GITHUB_REPO=your-username/your-repo
 GH_TOKEN=ghp_your_github_token_here
-
-# Phala Cloud API
-PHALA_API_KEY=your_phala_api_key
 
 # Optional: Customize display
 DISPLAY_WIDTH=1920
@@ -90,7 +98,7 @@ WORKSPACE=/workspace
 
 ### Essential Commands
 ```bash
-# GitHub authentication
+# GitHub authentication (If no GH_TOKEN provided)
 gh auth login
 
 # Access TEE info
@@ -98,9 +106,6 @@ curl --unix-socket /var/run/dstack.sock http://localhost/info
 
 # View running services
 sudo supervisorctl status
-
-# Connect from mobile device
-happy
 ```
 
 ---
@@ -132,16 +137,8 @@ GITHUB_REPO=your-username/your-repo
 
 # GitHub Personal Access Token (required for private repos)
 GH_TOKEN=ghp_your_github_token_here
-
-# Phala Cloud API Key (for advanced features)
-PHALA_API_KEY=your_phala_api_key
 ```
 
-#### Optional Configuration
-
-```bash
-INSTALL_HAPPY=true       # Happy CLI for mobile remote access
-INSTALL_CLAUDE=true      # Claude Code AI assistant
 
 # Set to "false" to skip installation and reduce startup time
 ```
@@ -169,7 +166,7 @@ That's it! Your VibeVM is now running. 🎉
 
 ---
 
-## First Steps: GitHub Authentication
+## First Steps: GitHub Authentication (If no GH_TOKEN set)
 Open the terminal in VSCode Server or via the web interface and authenticate with GitHub CLI:
 
 ```bash
@@ -183,31 +180,6 @@ Follow the prompts to authorize via your browser. This gives you:
 
 > 💡 **Already have GH_TOKEN set?** GitHub CLI will be automatically configured, but you may still want to run `gh auth login` for interactive features.
 
-### 3. Connect from Mobile (Optional)
-
-VibeVM includes **Happy CLI** for coding on the go from your mobile device:
-
-```bash
-# In your VibeVM terminal (VSCode or web terminal)
-happy
-```
-
-This will:
-- Start a remote connection session
-- Display a QR code on screen
-- Allow you to connect from the Happy Coder mobile app
-- Enable real-time coding from your phone/tablet
-
-**Mobile App:** Download "Happy Coder" from your app store to scan the QR code and start coding remotely.
-
-**Use Cases:**
-- 🚶 Code while commuting
-- 🛋️ Quick fixes from your couch  
-- 🌍 Access your VibeVM from anywhere
-- 📱 Monitor long-running processes on mobile
-
-> **Note:** Requires Claude CLI to be installed and authenticated. The `happy` command is pre-installed in your VibeVM.
-
 ---
 
 ## What You Get
@@ -217,33 +189,25 @@ Once logged in, access these interfaces from your browser (replace `your-vibevm-
 ### 🌐 VNC Browser
 Full Chrome browser for web automation and testing
 ```
-http://your-vibevm-url:8080/vnc/index.html?autoconnect=true
+http://your-vibevm-url-8080.phala-server-domain/vnc/index.html?autoconnect=true
 ```
 
 ### 💻 VSCode Server
 Complete development environment in your browser
 ```
-http://your-vibevm-url:8080/code-server/
+http://your-vibevm-url-8080.phala-server-domain/code-server/
 ```
 
 ### 📖 API Documentation
 Interactive API docs for programmatic control
 ```
-http://your-vibevm-url:8080/v1/docs
+http://your-vibevm-url-8080.phala-server-domain/v1/docs
 ```
 
 ### 🤖 MCP Services
 Model Context Protocol servers for AI agent integration
 ```
-http://your-vibevm-url:8089/
-```
-
-### 📱 Mobile Connection
-Code on the go with Happy CLI
-```bash
-# In your VibeVM terminal
-happy
-# Scan QR code with Happy Coder mobile app
+http://your-vibevm-url-8089.phala-server-domain/mcp
 ```
 
 ---
@@ -588,32 +552,6 @@ npm install -g package-name
 sudo apt update
 ```
 
-### Mobile Development with Happy CLI
-
-Access your VibeVM from your phone or tablet:
-
-1. **Start Happy session in VibeVM:**
-   ```bash
-   # SSH or open terminal in VSCode Server
-   happy
-   ```
-
-2. **Scan QR code** with Happy Coder mobile app
-
-3. **Code from mobile:**
-   - Run commands remotely
-   - Monitor long-running processes
-   - Quick bug fixes on the go
-   - Check logs and outputs
-
-4. **Real-time sync** between your VibeVM and mobile device
-
-**Perfect for:**
-- 🚂 Coding during commute
-- 🏖️ Quick fixes while traveling
-- 📊 Monitoring training/scraping jobs
-- 🔍 Checking deployment status remotely
-
 ---
 
 ## SDK Installation
@@ -686,14 +624,6 @@ go get github.com/Dstack-TEE/dstack/sdk/go/dstack
 - **Port 8079, 8000, 8091:** Additional services (see API docs)
 - Always start with port 8080 - it's your main dashboard
 
-### Happy CLI not working?
-- Ensure Node.js is available: `node --version` (should be v22.x)
-- Check if happy is installed: `which happy`
-- Reinstall if needed: `npm install -g happy-coder`
-- Verify Claude CLI is installed: `claude --version`
-- Make sure you're logged into Claude: `claude auth login`
-- Run `happy` from your VibeVM terminal, not from local machine
-
 ---
 
 ## Support & Community
@@ -707,7 +637,6 @@ go get github.com/Dstack-TEE/dstack/sdk/go/dstack
 
 - 🔧 [AIO Sandbox](https://github.com/agent-infra/sandbox) - The underlying sandbox technology
 - 🔒 [Dstack TEE](https://github.com/Dstack-TEE/dstack) - Trusted Execution Environment SDK
-- 📱 [Happy CLI](https://github.com/slopus/happy-cli) - Mobile remote connection for Claude Code
 - 🌐 [Phala Cloud](https://github.com/Phala-Network/phala-cloud) - Private Compute Cloud Service to Host dstack CVMs
 
 ## Contributing
