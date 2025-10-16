@@ -12,13 +12,14 @@
 ```
 
 **Good Vibes, Zero Trust Required**
-*Powered by Phala Cloud CVM x AIO Sandbox*
+
+*Powered by [Phala Cloud](https://phala.com) x [AIO Sandbox](https://sandbox.agent-infra.com) x [dstack](https://github.com/dstack-tee/dstack)*
 
 </div>
 
 ## Overview
 
-VibeVM Desktop is a secure, lightweight desktop environment built on top of the AIO Sandbox, designed specifically for deployment in Phala Cloud Confidential Virtual Machines (CVMs). It provides an authenticated, browser-accessible desktop with modern tools and a user-friendly interface.
+VibeVM Desktop is a secure, lightweight desktop environment built on top of the AIO (All-in-One) Sandbox, designed specifically for deployment in Phala Cloud Confidential Virtual Machines (CVMs). It provides an authenticated agent sandbox environment that combines Browser, Shell, File, MCP operations, and VSCode Server. This extension of AIO Sandbox sets the entrypoint at the VSCode Server for developers to customize and build their CVM applications within a native TEE environment running dstack.
 
 ## Why VibeVM?
 
@@ -27,10 +28,37 @@ Stop juggling multiple tools and environments. VibeVM gives you everything you n
 - **🌐 Browser Control** - Full Chrome browser with VNC, Playwright, and automation tools
 - **💻 VSCode Server** - Complete IDE in your browser, no local setup needed
 - **📦 Pre-installed Tools** - Python 3.13, Node.js 22, git, gh CLI, and 20+ developer tools via apt
-- **🔒 TEE Security** - Cryptographic key derivation and remote attestation via Dstack
+- **🔒 TEE Security** - Cryptographic key derivation and remote attestation via dstack
 - **📁 Unified Workspace** - All tools share the same filesystem - no more file shuffling
 
 **Perfect for:** Web scraping agents, blockchain applications, confidential computing, secure API integrations, and any AI agent that needs both automation and cryptographic guarantees.
+
+## Quickstart
+
+To launch in a CVM on Phala Cloud from the CLI (requires [Phala Cloud API Key](https://cloud.phala.network/dashboard/tokens)), clone this repo or launch the template in the [Phala Cloud Templates](https://cloud.phala.network/templates/VibeVM) dashboard.
+
+```
+# Clone the github repo
+git clone https://github.com/Phala-Network/VibeVM.git
+cd VibeVM
+# Edit .env file for your environment
+cp .env.example .env
+# Get your Phala Cloud API key at https://cloud.phala.network/dashboard/tokens
+export PHALA_CLOUD_API_KEY=sk-sasdf
+phala deploy -e .env --vcpu 4 --memory 8192 --disk-size 80 docker-compose.yaml
+```
+
+Example CLI Output
+```
+Deploying CVM vibevm...
+
+CVM created successfully!
+
+CVM ID:    0ae6f811-35a8-4183-a229-93bccb264403
+Name:      vibevm
+App ID:    9c4e3f6bda4ab645d784109e5b0d192654d30f5a
+Dashboard URL:  https://cloud.phala.network/dashboard/cvms/0ae6f811-35a8-4183-a229-93bccb264403
+```
 
 ## Files in This Repository
 
@@ -39,8 +67,6 @@ The complete deployment configuration for VibeVM. Copy this entire file and past
 ![alt text](image.png)
 
 **Features:**
-- ✅ Happy CLI installation for mobile remote connection (configurable)
-- ✅ Claude Code AI assistant installation (configurable)
 - ✅ GitHub repository auto-cloning on startup
 - ✅ TEE socket mounting for cryptographic operations
 - ✅ Docker socket access for container management
