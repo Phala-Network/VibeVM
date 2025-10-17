@@ -1,22 +1,76 @@
 version: '3.8'
 
 services:
+  # ==========================================
+  # Gateway (nginx reverse proxy with auth)
+  # ==========================================
+  vibevm-gateway:
+    image: hashwarlock/vibevm-gateway:v0.0.3
+    container_name: vibevm-gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      - vibevm-auth
+      - aio-sandbox
+    restart: unless-stopped
+    networks:
+      - vibevm-network
+
+  # ==========================================
+  # Authentication Service
+  # ==========================================
+  vibevm-auth:
+    image: hashwarlock/vibevm-auth:v0.0.2
+    container_name: vibevm-auth
+    environment:
+      - VIBEVM_AUTH_ENABLED=${VIBEVM_AUTH_ENABLED:-true}
+      - VIBEVM_USERNAME=${VIBEVM_USERNAME:-admin}
+      - VIBEVM_PASSWORD_HASH=${VIBEVM_PASSWORD_HASH}
+      - JWT_KEY_PATH=${JWT_KEY_PATH:-vibevm/auth/signing}
+      - JWT_PURPOSE=${JWT_PURPOSE:-vibevm-session}
+      - JWT_EXPIRY_HOURS=${JWT_EXPIRY_HOURS:-24}
+      - DSTACK_SOCKET_PATH=${DSTACK_SOCKET_PATH:-/var/run/dstack.sock}
+      # Fallback for local dev (REMOVE in production)
+      # - JWT_SECRET_FALLBACK=dev-secret-change-me-in-production
+    expose:
+      - "3000"
+    volumes:
+      - /var/run/dstack.sock:/var/run/dstack.sock
+    restart: unless-stopped
+    networks:
+      - vibevm-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================
+  # AIO Sandbox (no direct port exposure)
+  # ==========================================
   aio-sandbox:
     image: ghcr.io/agent-infra/sandbox:1.0.0.126
+    container_name: aio-sandbox
+    # NOTE: Ports are now ONLY exposed internally (no external access)
+    expose:
+      - "8079"
+      - "8000"
+      - "8080"
+      - "8089"
+      - "8091"
+      - "8100"
+      - "8101"
+      - "8102"
+      - "8200"
+      - "9222"
     ports:
-      - "8079:8079"
+      # NOTE: Add port mapping for internal services here if you need to access them from outside the sandbox
       - "8000:8000"
-      - "8080:8080"
-      - "8089:8089"
-      - "8091:8091"
     environment:
       # Git repository configuration (format: owner/repo-name)
-      - GITHUB_REPO=${GITHUB_REPO}
+      - GITHUB_REPO=${GITHUB_REPO:-Phala-Network/erc-8004-tee-agent}
       - GH_TOKEN=${GH_TOKEN}
-      # Optional: Install additional tools during startup (set to "true" or "false")
-      - INSTALL_HAPPY=${INSTALL_HAPPY:-true}
-      - INSTALL_CLAUDE=${INSTALL_CLAUDE:-true}
-      # Standard environment variables for the service
+      ## OPTIONAL ENVIRONMENT VARIABLES FOR CUSTOMIZATION - CHANGE IF YOU KNOW WHAT YOU ARE DOING ##
       - USER=gem  # Force to gem, not root
       - USER_UID=${USER_UID:-1000}
       - USER_GID=${USER_GID:-1000}
@@ -96,7 +150,6 @@ services:
         # bashrc - only move if source exists and destination doesn't
         [ -f /opt/gem/bashrc ] && [ ! -f /home/$$USER/.bashrc ] && mv /opt/gem/bashrc /home/$$USER/.bashrc
 
-        # Add Flox activation and environment variables to bashrc
         if [ -f /home/$$USER/.bashrc ]; then
           # Add GH_TOKEN if provided
           if [ -n "$${GH_TOKEN}" ]; then
@@ -160,30 +213,6 @@ services:
 
         # in the end ensure the home directory is owned by the user
         chown -R $$USER:$$USER /home/$$USER
-
-        # Install Happy CLI (if enabled and Node.js is available)
-        if [ "$${INSTALL_HAPPY:-true}" = "true" ]; then
-          if command -v npm >/dev/null 2>&1; then
-            echo "Installing happy-coder globally via npm..."
-            su - $$USER -c "npm install -g happy-coder" || echo "Failed to install happy-coder"
-          else
-            echo "Skipping happy-coder installation (npm not available)"
-          fi
-        else
-          echo "Skipping happy-coder installation (INSTALL_HAPPY=false)"
-        fi
-
-        # Install Claude Code (if enabled and Node.js is available)
-        if [ "$${INSTALL_CLAUDE:-true}" = "true" ]; then
-          if command -v npm >/dev/null 2>&1; then
-            echo "Installing Claude Code globally via npm..."
-            su - $$USER -c "npm install -g @anthropic-ai/claude-code" || echo "Failed to install Claude Code"
-          else
-            echo "Skipping Claude Code installation (npm not available)"
-          fi
-        else
-          echo "Skipping Claude Code installation (INSTALL_CLAUDE=false)"
-        fi
 
         mkdir -p $$LOG_DIR
         touch $$LOG_DIR/entrypoint.log
@@ -292,7 +321,7 @@ services:
             exit 1
           fi
 
-          export BROWSER_EXTRA_ARGS="$${BROWSER_EXTRA_ARGS} --proxy-server=http://127.0.0.1:8118 --proxy-bypass-list=\"localhost,127.0.0.1,*.byted.org,*.bytedance.net,*.baidu.com,baidu.com\""
+          export BROWSER_EXTRA_ARGS="$${BROWSER_EXTRA_ARGS} --proxy-server=http://127.0.0.1:8118 --proxy-bypass-list=\"localhost,127.0.0.1,*.byted.org,*.bytedance.net,*.baidu.com,baidu.com,*.phala.network\""
         else
           rm -f /opt/gem/supervisord/supervisord.tinyproxy.conf
         fi
@@ -300,19 +329,19 @@ services:
         # Display startup banner
         print_banner() {
           echo ""
-          echo -e "\033[36m █████╗ ██╗ ██████╗     ███████╗ █████╗ ███╗   ██╗██████╗ ██████╗  ██████╗ ██╗  ██╗\033[0m"
-          echo -e "\033[36m██╔══██╗██║██╔═══██╗    ██╔════╝██╔══██╗████╗  ██║██╔══██╗██╔══██╗██╔═══██╗╚██╗██╔╝\033[0m"
-          echo -e "\033[36m███████║██║██║   ██║    ███████╗███████║██╔██╗ ██║██║  ██║██████╔╝██║   ██║ ╚███╔╝\033[0m"
-          echo -e "\033[36m██╔══██║██║██║   ██║    ╚════██║██╔══██║██║╚██╗██║██║  ██║██╔══██╗██║   ██║ ██╔██╗\033[0m"
-          echo -e "\033[36m██║  ██║██║╚██████╔╝    ███████║██║  ██║██║ ╚████║██████╔╝██████╔╝╚██████╔╝██╔╝ ██╗\033[0m"
-          echo -e "\033[36m╚═╝  ╚═╝╚═╝ ╚═════╝     ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝\033[0m"
+          echo -e "\033[36m██╗   ██╗██╗██████╗ ███████╗██╗   ██╗███╗   ███╗\033[0m"
+          echo -e "\033[36m██║   ██║██║██╔══██╗██╔════╝██║   ██║████╗ ████║\033[0m"
+          echo -e "\033[36m██║   ██║██║██████╔╝█████╗  ██║   ██║██╔████╔██║\033[0m"
+          echo -e "\033[36m╚██╗ ██╔╝██║██╔══██╗██╔══╝  ╚██╗ ██╔╝██║╚██╔╝██║\033[0m"
+          echo -e "\033[36m ╚████╔╝ ██║██████╔╝███████╗ ╚████╔╝ ██║ ╚═╝ ██║\033[0m"
+          echo -e "\033[36m  ╚═══╝  ╚═╝╚═════╝ ╚══════╝  ╚═══╝  ╚═╝     ╚═╝\033[0m"
           echo ""
-          echo -e "\033[32m🚀 AIO(All-in-One) Agent Sandbox Environment\033[0m"
+          echo -e "\033[32m🚀 VibeVM - A Confidential VM built on top of AIO(All-in-One) Agent Sandbox Environment\033[0m"
           if [ -n "$${IMAGE_VERSION}" ]; then
             echo -e "\033[34m📦 Image Version: $${IMAGE_VERSION}\033[0m"
           fi
-          echo -e "\033[33m🌈 Dashboard: http://localhost:8080\033[0m"
-          echo -e "\033[33m📚 Documentation: http://localhost:8080/v1/docs\033[0m"
+          echo -e "\033[33m🌈 Dashboard: http://$${DSTACK_APP_ID}-8080.$${DSTACK_GATEWAY_DOMAIN}\033[0m"
+          echo -e "\033[33m📚 Documentation: http://$${DSTACK_APP_ID}-8080.$${DSTACK_GATEWAY_DOMAIN}/v1/docs\033[0m"
           echo ""
           echo -e "\033[35m================================================================\033[0m"
         }
@@ -335,5 +364,12 @@ services:
         exec /opt/gem/entrypoint.sh
     restart: unless-stopped
 
+    networks:
+      - vibevm-network
+
 volumes:
   sandbox_data:
+
+networks:
+  vibevm-network:
+    driver: bridge
