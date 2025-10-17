@@ -74,7 +74,7 @@ The complete deployment configuration for VibeVM. Copy this entire file and past
 - Secrets:
   - `VIBEVM_AUTH_ENABLED`: set to true to enable login
   - `VIBEVM_USERNAME`: username of your choice
-  - `VIBEVM_PASSWORD_HASH`: Generate with `python3 -c "import bcrypt; print(bcrypt.hashpw(b'YOUR_NEW_PASSWORD', bcrypt.gensalt()).decode())"`
+  - `VIBEVM_PASSWORD`: Your password (will be automatically hashed by the application)
   - `GITHUB_REPO`: Target github repo to clone into environment
   - (optional) `GH_TOKEN`: create token at https://github.com/settings/tokens/new
 
@@ -107,7 +107,7 @@ GH_TOKEN=ghp_your_github_token_here
 #     Password: vibevm4454
 VIBEVM_AUTH_ENABLED=true
 VIBEVM_USERNAME=admin
-VIBEVM_PASSWORD_HASH="$2b$12$DQJz2NIdybsd47VSJIH0jORFpEftNtHScna.CPt.lc.qUyBq4b3.m"
+VIBEVM_PASSWORD=vibevm4454
 ```
 
 Copy `.env.example` to `.env` for local Docker testing, but **set these as secrets in Phala Cloud dashboard** for production deployments.

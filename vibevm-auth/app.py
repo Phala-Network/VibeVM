@@ -50,7 +50,19 @@ app.add_middleware(ProxyHeadersMiddleware)
 
 # Configuration from environment
 USERNAME = os.getenv("VIBEVM_USERNAME", "admin")
+# Support both VIBEVM_PASSWORD (plaintext, auto-hashed) and VIBEVM_PASSWORD_HASH (pre-hashed)
+# for backwards compatibility. VIBEVM_PASSWORD is preferred.
+VIBEVM_PASSWORD = os.getenv("VIBEVM_PASSWORD")
 PASSWORD_HASH = os.getenv("VIBEVM_PASSWORD_HASH")
+
+# If plaintext password is provided, hash it automatically
+if VIBEVM_PASSWORD and not PASSWORD_HASH:
+    PASSWORD_HASH = bcrypt.hashpw(VIBEVM_PASSWORD.encode(), bcrypt.gensalt()).decode()
+    print("✅ Password automatically hashed from VIBEVM_PASSWORD")
+elif not PASSWORD_HASH and not VIBEVM_PASSWORD:
+    print("❌ ERROR: Either VIBEVM_PASSWORD or VIBEVM_PASSWORD_HASH must be set")
+    raise ValueError("Missing password configuration")
+
 JWT_EXPIRY_HOURS = int(os.getenv("JWT_EXPIRY_HOURS", "24"))
 JWT_PURPOSE = os.getenv("JWT_PURPOSE", "vibevm-session")
 JWT_KEY_PATH = os.getenv("JWT_KEY_PATH", "vibevm/auth/signing")
