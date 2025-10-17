@@ -20,7 +20,7 @@ services:
   # Authentication Service
   # ==========================================
   vibevm-auth:
-    image: hashwarlock/vibevm-auth:v0.0.3
+    image: hashwarlock/vibevm-auth:v0.0.4
     container_name: vibevm-auth
     environment:
       - VIBEVM_AUTH_ENABLED=${VIBEVM_AUTH_ENABLED:-true}
