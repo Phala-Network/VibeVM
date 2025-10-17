@@ -19,7 +19,7 @@
 
 ## Overview
 
-VibeVM Desktop is a secure, lightweight desktop environment built on top of the AIO (All-in-One) Sandbox, designed specifically for deployment in Phala Cloud Confidential Virtual Machines (CVMs). It provides an authenticated agent sandbox environment that combines Browser, Shell, File, MCP operations, and VSCode Server. This extension of AIO Sandbox sets the entrypoint at the VSCode Server for developers to customize and build their CVM applications within a native TEE environment running dstack.
+VibeVM is a secure, lightweight development environment built on top of the AIO (All-in-One) Sandbox, designed specifically for deployment in Phala Cloud Confidential Virtual Machines (CVMs). It provides an authenticated agent sandbox environment that combines Browser, Shell, File, MCP operations, and VSCode Server. This extension of AIO Sandbox sets the entrypoint at the VSCode Server for developers to customize and build their CVM applications within a native TEE environment running dstack.
 
 ## Why VibeVM?
 
@@ -63,8 +63,24 @@ Dashboard URL:  https://cloud.phala.network/dashboard/cvms/0ae6f811-35a8-4183-a2
 ## Files in This Repository
 
 ### docker-compose.yaml
-The complete deployment configuration for VibeVM. Copy this entire file and paste it into your Phala Cloud dashboard when deploying.
+The complete deployment configuration for VibeVM. Copy this entire file and paste it into your Phala Cloud dashboard when deploying. Make sure to configure with these requirements:
+- OS: `dstack-dev-0.5.x or greater`
+- Large TDX Instance
+  - 4 vCPUs
+  - 8GB RAM
+  - > 40GB of Storage
+- Secrets:
+  - `VIBEVM_AUTH_ENABLED`: set to true to enable login
+  - `VIBEVM_USERNAME`: username of your choice
+  - `VIBEVM_PASSWORD_HASH`: Generate with `python3 -c "import bcrypt; print(bcrypt.hashpw(b'YOUR_NEW_PASSWORD', bcrypt.gensalt()).decode())"`
+  - `GITHUB_REPO`: Target github repo to clone into environment
+  - (optional) `GH_TOKEN`: create token at https://github.com/settings/tokens/new
+
+#### Insert compose file here:
 ![alt text](image.png)
+
+#### Configuration setting for CVM:
+![alt text](config.png)
 
 **Features:**
 - ✅ GitHub repository auto-cloning on startup
@@ -83,11 +99,13 @@ Template for environment variables when testing locally:
 # GitHub Integration
 GITHUB_REPO=your-username/your-repo
 GH_TOKEN=ghp_your_github_token_here
-
-# Optional: Customize display
-DISPLAY_WIDTH=1920
-DISPLAY_HEIGHT=1080
-TZ=America/New_York
+# VibeVM Test Configuration
+#   Test credentials:
+#     Username: admin
+#     Password: vibevm4454
+VIBEVM_AUTH_ENABLED=true
+VIBEVM_USERNAME=admin
+VIBEVM_PASSWORD_HASH="$2b$12$DQJz2NIdybsd47VSJIH0jORFpEftNtHScna.CPt.lc.qUyBq4b3.m"
 ```
 
 Copy `.env.example` to `.env` for local Docker testing, but **set these as secrets in Phala Cloud dashboard** for production deployments.
