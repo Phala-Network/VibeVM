@@ -26,8 +26,6 @@ services:
       - VIBEVM_AUTH_ENABLED=${VIBEVM_AUTH_ENABLED:-true}
       - VIBEVM_USERNAME=${VIBEVM_USERNAME:-admin}
       - VIBEVM_PASSWORD=${VIBEVM_PASSWORD:-vibevm4454}
-      # Backwards compatibility: VIBEVM_PASSWORD_HASH is still supported
-      - VIBEVM_PASSWORD_HASH=${VIBEVM_PASSWORD_HASH}
       - JWT_KEY_PATH=${JWT_KEY_PATH:-vibevm/auth/signing}
       - JWT_PURPOSE=${JWT_PURPOSE:-vibevm-session}
       - JWT_EXPIRY_HOURS=${JWT_EXPIRY_HOURS:-24}
