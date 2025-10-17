@@ -70,7 +70,7 @@ The complete deployment configuration for VibeVM. Copy this entire file and past
 - Large TDX Instance
   - 4 vCPUs
   - 8GB RAM
-  - > 40GB of Storage
+  - \> 40GB of Storage
 - Secrets:
   - `VIBEVM_AUTH_ENABLED`: set to true to enable login
   - `VIBEVM_USERNAME`: username of your choice
@@ -183,10 +183,6 @@ GITHUB_REPO=your-username/your-repo
 
 # GitHub Personal Access Token (required for private repos)
 GH_TOKEN=ghp_your_github_token_here
-```
-
-
-# Set to "false" to skip installation and reduce startup time
 ```
 
 **Don't have a GitHub token?** Generate one at: https://github.com/settings/tokens/new
