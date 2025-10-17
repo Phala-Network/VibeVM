@@ -17,6 +17,8 @@
 
 </div>
 
+[![](https://cloud.phala.network/deploy-button.svg)](https://cloud.phala.network/templates/VibeVM)
+
 ## Overview
 
 VibeVM is a secure, lightweight development environment built on top of the AIO (All-in-One) Sandbox, designed specifically for deployment in Phala Cloud Confidential Virtual Machines (CVMs). It provides an authenticated agent sandbox environment that combines Browser, Shell, File, MCP operations, and VSCode Server. This extension of AIO Sandbox sets the entrypoint at the VSCode Server for developers to customize and build their CVM applications within a native TEE environment running dstack.
