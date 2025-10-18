@@ -17,6 +17,9 @@
 
 </div>
 
+> ⚠️ Warning: Confidential VMs set a high security baseline, but should be optimized for production. Fork the code. Bring your own security and privacy. Create security's best vibes on the Internet.
+
+
 [![](https://cloud.phala.network/deploy-button.svg)](https://cloud.phala.network/templates/VibeVM)
 
 ## Overview
