@@ -1,49 +1,29 @@
-version: '3.8'
-
 services:
-  # ==========================================
-  # Gateway (nginx reverse proxy with auth)
-  # ==========================================
   vibevm-gateway:
-    image: hashwarlock/vibevm-gateway:v0.0.3
+    image: h4x3rotab/vibevm-gateway:v0.0.4
     container_name: vibevm-gateway
-    ports:
-      - "8080:80"
-    depends_on:
-      - vibevm-auth
-      - aio-sandbox
-    restart: unless-stopped
-    networks:
-      - vibevm-network
-
-  # ==========================================
-  # Authentication Service
-  # ==========================================
-  vibevm-auth:
-    image: hashwarlock/vibevm-auth:v0.0.4
-    container_name: vibevm-auth
+    network_mode: host
     environment:
-      - VIBEVM_AUTH_ENABLED=${VIBEVM_AUTH_ENABLED:-true}
-      - VIBEVM_USERNAME=${VIBEVM_USERNAME:-admin}
+      # Authentication settings
+      - VIBEVM_AUTH_ENABLED=true
+      - VIBEVM_USERNAME=admin
       - VIBEVM_PASSWORD=${VIBEVM_PASSWORD:-vibevm4454}
-      - JWT_KEY_PATH=${JWT_KEY_PATH:-vibevm/auth/signing}
-      - JWT_PURPOSE=${JWT_PURPOSE:-vibevm-session}
-      - JWT_EXPIRY_HOURS=${JWT_EXPIRY_HOURS:-24}
-      - DSTACK_SOCKET_PATH=${DSTACK_SOCKET_PATH:-/var/run/dstack.sock}
+      - JWT_KEY_PATH=$vibevm/auth/signing
+      - JWT_PURPOSE=vibevm-session
+      - JWT_EXPIRY_HOURS=24
+      - DSTACK_SOCKET_PATH=/var/run/dstack.sock
       # Fallback for local dev (REMOVE in production)
       # - JWT_SECRET_FALLBACK=dev-secret-change-me-in-production
-    expose:
-      - "3000"
     volumes:
       - /var/run/dstack.sock:/var/run/dstack.sock
+    depends_on:
+      - aio-sandbox
     restart: unless-stopped
-    networks:
-      - vibevm-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
 
   # ==========================================
   # AIO Sandbox (no direct port exposure)
@@ -51,7 +31,7 @@ services:
   aio-sandbox:
     image: ghcr.io/agent-infra/sandbox:1.0.0.126
     container_name: aio-sandbox
-    # NOTE: Ports are now ONLY exposed internally (no external access)
+    network_mode: host
     expose:
       - "8079"
       - "8000"
@@ -63,9 +43,6 @@ services:
       - "8102"
       - "8200"
       - "9222"
-    ports:
-      # NOTE: Add port mapping for internal services here if you need to access them from outside the sandbox
-      - "8000:8000"
     environment:
       # Git repository configuration (format: owner/repo-name)
       - GITHUB_REPO=${GITHUB_REPO:-Phala-Network/erc-8004-tee-agent}
@@ -326,6 +303,23 @@ services:
           rm -f /opt/gem/supervisord/supervisord.tinyproxy.conf
         fi
 
+        # Patch to make everything listen on localhost
+        sed -i 's/--bind-addr=0\.0\.0\.0:8080/--bind-addr=127.0.0.1:8200/g' /opt/gem/supervisord/supervisord.code_server.conf
+        shopt -s nullglob
+        for conf_file in /opt/gem/supervisord/*.conf /opt/gem/supervisord.*.conf; do
+          sed -i 's/0\.0\.0\.0/127.0.0.1/g' "$$conf_file"
+        done
+        echo '''
+        server {
+            # Listen on the public port and act as the default server.
+            listen 127.0.0.1:$${PUBLIC_PORT};
+            listen [::1]:$${PUBLIC_PORT};
+
+            # No authentication is performed. Requests are immediately passed
+            # to the location blocks defined in the developer-provided files.
+            include /opt/gem/nginx/*.conf;
+        }''' > /opt/gem/nginx-server-without-auth.conf
+
         # Display startup banner
         print_banner() {
           echo ""
@@ -340,8 +334,8 @@ services:
           if [ -n "$${IMAGE_VERSION}" ]; then
             echo -e "\033[34m📦 Image Version: $${IMAGE_VERSION}\033[0m"
           fi
-          echo -e "\033[33m🌈 Dashboard: http://$${DSTACK_APP_ID}-8080.$${DSTACK_GATEWAY_DOMAIN}\033[0m"
-          echo -e "\033[33m📚 Documentation: http://$${DSTACK_APP_ID}-8080.$${DSTACK_GATEWAY_DOMAIN}/v1/docs\033[0m"
+          echo -e "\033[33m🌈 Dashboard: http://$${DSTACK_APP_ID}.$${DSTACK_GATEWAY_DOMAIN}\033[0m"
+          echo -e "\033[33m📚 Documentation: http://$${DSTACK_APP_ID}.$${DSTACK_GATEWAY_DOMAIN}/v1/docs\033[0m"
           echo ""
           echo -e "\033[35m================================================================\033[0m"
         }
@@ -364,12 +358,5 @@ services:
         exec /opt/gem/entrypoint.sh
     restart: unless-stopped
 
-    networks:
-      - vibevm-network
-
 volumes:
   sandbox_data:
-
-networks:
-  vibevm-network:
-    driver: bridge
