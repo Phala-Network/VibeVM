@@ -6,7 +6,7 @@ services:
     environment:
       # Authentication settings
       - VIBEVM_AUTH_ENABLED=true
-      - VIBEVM_USERNAME=admin
+      - VIBEVM_USERNAME=${VIBEVM_USERNAME:-admin}
       - VIBEVM_PASSWORD=${VIBEVM_PASSWORD:-vibevm4454}
       - JWT_KEY_PATH=vibevm/auth/signing
       - JWT_PURPOSE=vibevm-session
