@@ -79,7 +79,8 @@ The complete deployment configuration for VibeVM. Copy this entire file and past
   - `VIBEVM_USERNAME`: username of your choice
   - `VIBEVM_PASSWORD`: Your password (will be automatically hashed by the application)
   - `GITHUB_REPO`: Target github repo to clone into environment
-  - (optional) `GH_TOKEN`: create token at https://github.com/settings/tokens/new
+  - `GITHUB_COMMIT_HASH`: Github commit hash to target
+  - (optional) `GITHUB_TOKEN`: create token at https://github.com/settings/tokens/new
 
 #### Insert compose file here:
 ![alt text](image.png)
