@@ -92,7 +92,7 @@ services:
       # Nginx configuration
       - NGINX_LOG_LEVEL=${NGINX_LOG_LEVEL:-debug}
     volumes:
-      - sandbox_data:/workspace
+      - sandbox_data:/home/gem
       - /var/run/dstack.sock:/var/run/dstack.sock
     entrypoint: /bin/bash
     command:
