@@ -121,8 +121,8 @@ services:
         fi
 
         # bashrc - only move if source exists and destination doesn't
-        if [ -f /opt/gem/bashrc ] && [ ! -f /home/$$USER/.bashrc ]; then
-          mv /opt/gem/bashrc /home/$$USER/.bashrc
+        if [ ! -f /home/$$USER/.bashrc ] && [ -f /opt/gem/bashrc ]; then
+          cp /opt/gem/bashrc /home/$$USER/.bashrc
         fi
 
         if [ -f /home/$$USER/.bashrc ]; then
