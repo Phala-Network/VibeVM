@@ -54,23 +54,6 @@ Dashboard URL:  https://cloud.phala.network/dashboard/cvms/0ae6f811-35a8-4183-a2
 ### cURL: Direct API Access
 
 ```bash
-# Execute shell command
-curl -X POST http://localhost:8080/v1/shell/exec \
-  -H "Content-Type: application/json" \
-  -d '{"command": "echo Hello from VibeVM && pwd"}'
-
-# Get sandbox environment info
-curl http://localhost:8080/v1/sandbox
-
-# Take browser screenshot
-curl -X POST http://localhost:8080/v1/browser/screenshot \
-  -o screenshot.png
-
-# Read a file
-curl -X POST http://localhost:8080/v1/file/read \
-  -H "Content-Type: application/json" \
-  -d '{"file": "/home/gem/.bashrc"}' | jq .
-
 # Get TEE information
 curl --unix-socket /var/run/dstack.sock \
   http://localhost/info | jq .
