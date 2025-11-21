@@ -3,12 +3,15 @@ services:
     image: lscr.io/linuxserver/code-server:latest
     container_name: code-server
     environment:
+      - DSTACK_APP_ID=${DSTACK_APP_ID}
+      - DSTACK_GATEWAY_DOMAIN=${DSTACK_GATEWAY_DOMAIN}
       - PUID=1000
       - PGID=1000
       - TZ=America/Chicago
       - PASSWORD=${PASSWORD}
-      - SUDO_PASSWORD=${SUDO_PASSWORD}
+      - SUDO_PASSWORD=${PASSWORD}
       - DEFAULT_WORKSPACE=/config/workspace
+      - VSCODE_PROXY_URI=https://${DSTACK_APP_ID}-{{port}}.${DSTACK_GATEWAY_DOMAIN}
       - PWA_APPNAME=code-server
     volumes:
       - config_state:/config
