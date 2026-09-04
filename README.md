@@ -70,7 +70,7 @@ curl --unix-socket /var/run/dstack.sock \
 
 - 🐛 [Report Issues](https://github.com/Phala-Network/VibeVM/issues)
 - 💬 [Community Discussions](https://github.com/Phala-Network/VibeVM/discussions)
-- 📧 [Phala Support](https://discord.gg/phala-network)
+- 📧 [Phala Support](https://phala.com/discord)
 - 📚 [Phala Documentation](https://docs.phala.com)
 
 ## Related Projects
